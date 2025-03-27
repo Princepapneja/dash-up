@@ -162,33 +162,49 @@ export default class DashWebPart extends BaseClientSideWebPart<IDashWebPartProps
   }
 
   protected onPropertyPaneConfigurationStart(): void {
-    this.getLists().then(listOptions => {
-      this.listOptions = listOptions;
-      this.context.propertyPane.refresh();
-    }).then(() => {
-      this.getFields().then(fieldOptions => {
+    this.getLists()
+      .then(listOptions => {
+        this.listOptions = listOptions;
+        this.context.propertyPane.refresh();
+  
+        // Ensure a default list is selected if none is set
+        if (!this.properties.listId && listOptions.length > 0) {
+          this.properties.listId = listOptions[0].key as string;
+        }
+  
+        return this.getFields();
+      })
+      .then(fieldOptions => {
         this.fieldOptions = fieldOptions;
         this.context.propertyPane.refresh();
+      })
+      .catch(error => {
+        console.error("Error in fetching lists or fields:", error);
       });
-    });
   }
+  
 
-  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
-    super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
+ protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+  super.onPropertyPaneFieldChanged(propertyPath, oldValue, newValue);
 
-    if (propertyPath === 'listId' && newValue) {
-      this.properties.selectedFields = [];
+  if (propertyPath === 'listId' && newValue) {
+    this.properties.selectedFields = [];
 
-      this.getFields().then(fieldOptions => {
+    this.getFields()
+      .then(fieldOptions => {
         this.fieldOptions = fieldOptions;
         this.context.propertyPane.refresh();
+      })
+      .catch(error => {
+        console.error("Error fetching fields:", error);
       });
-    }
-
-    else if (propertyPath === 'colors' && newValue) {
-      this.properties.colors = newValue;
-      this.context.propertyPane.refresh();
-      this.render();
-    }
   }
+
+  if (propertyPath === 'colors') {
+    this.properties.colors = newValue;
+    this.context.propertyPane.refresh();
+    this.render();
+  }
+}
+
 }
