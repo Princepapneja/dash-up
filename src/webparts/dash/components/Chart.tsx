@@ -74,7 +74,7 @@ export default class Chart extends React.Component<IChartProps, IChartState> {
             />
           )}
           {this.props.chartType === 'Bar' && <Bar data={this.chartData()} />}
-          {this.props.chartType === 'Line' && <Line data={this.chartData()} />}
+          {this.props.chartType === 'Line' && <Line style={{height:"500px" ,width:500}} data={this.chartData()} />}
           {this.props.chartType === 'Pie' && <Pie data={this.chartData()} />}
           {this.props.chartType === 'Doughnut' && <Doughnut data={this.chartData()} />}
           {this.props.chartType === 'HorizontalBar' && (
@@ -233,47 +233,65 @@ export default class Chart extends React.Component<IChartProps, IChartState> {
       return data;
 
     }
-    if (this.props.chartType === "Line") {
-      const fields = ["Investment_Date", "field_3"];  // Investment Date (Year) and Investment Amount
-      let map: Map<string, any> = new Map();  // Use the year as the key to store aggregated data
-      let data: any = {
+    else if (this.props.chartType === "Line") {
+       fields = ["field_7", "Investment_Date", "field_3"];  // Investment Name, Investment Date (Year), and Investment Amount
+      let map = new Map();  // Use the year and investment name as keys to store aggregated data
+      let data:any = {
         labels: [],  // x-axis labels for years
         datasets: []  // Dataset for line chart
       };
     
-      // Iterate through the items to process and group by year
-      this.state.items.forEach((item, i) => {
-        fields.forEach((field: any, j: number) => {
-          const value: any = item[field] ?? item[`OData_${field}`];  // Handle field if it's not directly available
+      // Iterate through the items to process and group by year and investment name
+      this.state.items.forEach((item) => {
+        const investmentName = item["field_7"];  // Investment Name
+        const year = item["Investment_Date"];  // Investment Date (Year)
+        const investmentAmount = item["field_3"];  // Investment Amount
     
-          if (j === 0) {
-            // Handle Investment Date (Year)
-            const year = value;  // We are assuming Investment_Date is a year value
+        if (!investmentName || !year || investmentAmount === undefined) {
+          return;  // Skip invalid or incomplete data
+        }
     
-            if (!map.has(year)) {
-              map.set(year, {
-                label: year,
-                data: [0],  // Initialize data with a starting value of 0
-                backgroundColor: this.props.colors[i % this.props.colors.length],
-                borderColor: this.props.colors[i % this.props.colors.length],
-              });
-            }
-          } else if (j === 1) {
-            // Handle Investment Amount (field_7)
-            const dataset = map.get(item["Investment_Date"]);
-            if (dataset) {
-              dataset.data[0] += value;  // Add the value to the corresponding year's total investment
-            }
-          }
-        });
+        if (!map.has(investmentName)) {
+          map.set(investmentName, {});
+        }
+    
+        const investmentData = map.get(investmentName);
+    
+        // Initialize the year in the map if it doesn't exist
+        if (!investmentData[year]) {
+          investmentData[year] = 0;
+        }
+    
+        // Add the investment amount to the corresponding year
+        investmentData[year] += investmentAmount;
       });
     
       // Now, populate the `labels` and `datasets` for the chart
-      data.labels = Array.from(map.keys()).sort((a: any, b: any) => a - b);  // Sort years (Investment_Date)
-      data.datasets = Array.from(map.values());  // Convert map values to datasets
+      // Create a list of years and sort them for the x-axis
+      const years = Array.from(
+        new Set(
+          this.state.items.map((item) => item["Investment_Date"])
+        )
+      ).sort((a, b) => a - b);  // Sort years
+    
+      data.labels = years;  // Set x-axis labels (years)
+    
+      // Create datasets for each investment name (each line on the chart)
+      data.datasets = Array.from(map.keys()).map((investmentName, i) => {
+        const investmentData = map.get(investmentName);
+    
+        return {
+          label: investmentName,  // Investment name (label for the line)
+          data: years.map((year) => investmentData[year] || 0),  // Sum investment amounts for each year
+          backgroundColor: this.props.colors[i % this.props.colors.length],  // Assign color for the line
+          borderColor: this.props.colors[i % this.props.colors.length],  // Border color for the line
+          fill: false,  // Set false to avoid filling the area under the line
+        };
+      });
     
       return data;
     }
+    
     
     else{
       return []
