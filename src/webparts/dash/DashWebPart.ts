@@ -3,6 +3,7 @@ import * as ReactDom from 'react-dom';
 import { Version, Environment } from '@microsoft/sp-core-library';
 import {
   BaseClientSideWebPart,
+  WebPartContext,
 } from '@microsoft/sp-webpart-base';
 import {
   IPropertyPaneConfiguration,
@@ -25,6 +26,7 @@ export interface IDashWebPartProps {
   chartType: string;
   chartTitle: string;
   colors: string[];
+  context:WebPartContext;
 }
 
 export default class DashWebPart extends BaseClientSideWebPart<IDashWebPartProps> {
@@ -45,6 +47,7 @@ export default class DashWebPart extends BaseClientSideWebPart<IDashWebPartProps
         chartType: this.properties.chartType,
         chartTitle: this.properties.chartTitle,
         colors: this.properties.colors,
+        context:this.context
       }
     );
 

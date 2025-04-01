@@ -23,3 +23,31 @@
 .chartFooter {
   text-align: center;
 }
+:global {
+  div[data-automation-id="CanvasZone-SectionContainer"] {
+    max-width: 100% !important;
+  }
+  .l_e_8474018e {
+    padding: 0 !important;
+  }
+ 
+  #workbenchPageContent,
+  .CanvasComponent.LCS .CanvasZone {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .CanvasComponent.LCS .CanvasSection-col {
+    padding: 0 !important;
+  }
+ 
+  .CanvasComponent.LCS .CanvasZone:not(.CanvasZone--fullWidth) .ControlZone {
+    padding: 0 !important;
+  }
+ 
+  .CanvasComponent.LCS
+    .CanvasSection--read:not(.CanvasSection--fullWidth)
+    .ControlZone:last-of-type {
+    margin: 0 !important;
+  }
+}

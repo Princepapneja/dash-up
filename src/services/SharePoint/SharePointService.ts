@@ -40,11 +40,12 @@ export class SharePointServiceManager {
     return this.get(`/_api/lists/getbyid('${listId}')/items${selectedFields ? `?$select=${selectedFields.join(',')}` : ''}`);
   }
 
+
   public getListFields(listId: string, showHiddenFields: boolean = false): Promise<IListFieldCollection> {
     if (this.environmentType == EnvironmentType.Local) {
       return new Promise(resolve => resolve(MockListFieldCollection));
     }
-    return this.get(`/_api/lists/getbyid('${listId}')/fields${!showHiddenFields ? '?$filter=Hidden eq false' : ''}`);
+    return this.get(`/_api/lists/getbyid('${listId}')/fields${!showHiddenFields ? '?$filter=Hidden eq false' : ''}&$top=5000`);
   }
 }
 
