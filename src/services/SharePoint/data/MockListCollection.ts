@@ -9,6 +9,7 @@ export const MockListCollection: IListCollection = {
     {
       Id: 'eeb559b7-5e3e-479c-a4cd-f48b046b54e7',
       Title: 'Sample List Two',
+      
     },
     {
       Id: '5b627813-79a4-456e-a341-324a065c919e',
